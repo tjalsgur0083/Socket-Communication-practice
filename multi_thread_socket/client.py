@@ -1,19 +1,27 @@
 import socket
+from urllib import response
 
 HOST = 'localhost'
 PORT = 8080
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
+def main():
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((HOST, PORT))
 
+    print(client.recv(1024).decode('utf-8'))
+    
     while True:
-        n = input("1-100 사이의 숫자를 입력하세요(0은 게임포기):")
-        if not n.strip():
-            print("입력값이 잘못되었습니다.")
-            continue
-        s.sendall(n.encode('utf-8'))
-        data = s.recv(1024).decode('utf-8')
-        print(f'서버응답:{data}')
-        if data == "정답" or data == "종료":
-            break
-			##승,패 를 기준으로 서버 종료로 변경
+        try:
+            guess = input("숫자를 입력하세요: ")
+            client.send(guess.encode('utf-8'))
+            response = client.recv(1024).decode('utf-8')
+            print(response)
+            if "축하합니다" in response:
+                break
+        except ValueError:
+            print("유효하지 않은 입력입니다. 숫자를 입력하세요.")
+
+    client.close()
+
+if __name__ == "__main__":
+    main()
